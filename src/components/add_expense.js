@@ -3,14 +3,21 @@
  */
 import _ from 'lodash';
 import React, {Component} from 'react';
-import {View, Text, Picker} from 'react-native';
+import {View, Text, Picker, ScrollView} from 'react-native';
 import {connect} from 'react-redux';
-import {CardSection, Card, Button, Input} from './common';
-import {loadCategories, amountChanged, categoryChanged, descriptionChanged, saveExpense} from '../actions';
+import {CardSection, Card, Button, Input, Spinner} from './common';
+import {
+    loadCategories,
+    amountChanged,
+    selectedCategoryChanged,
+    descriptionChanged,
+    saveExpense,
+    fetchCredentials
+} from '../actions';
 
 class AddExpense extends Component {
     componentWillMount() {
-        this.props.loadCategories('31357915');
+        this.props.loadCategories(this.props.userId);
     }
 
     descriptionChanged(text) {
@@ -48,58 +55,69 @@ class AddExpense extends Component {
         return isNaN(number);
     }
 
-    renderButton() {
-        if (this.props.loading) {
-            return <Spinner size="large"/>;
-        }
-
-        return (
-            <Button onPress={this.onButtonPress.bind(this)}>
-                Guardar
-            </Button>
-        );
-    }
-
-    render() {
+    renderPicker() {
         let categoryItems;
         if (this.props.categoryList) {
             categoryItems = this.props.categoryList.map((s, i) => {
                 return <Picker.Item key={i} value={s.val} label={s.val}/>
             });
         }
-        return (
-            <Card>
-                <CardSection>
-                    <Input
-                        label="En qué gasté?"
-                        placeholder="Descripción"
-                        onChangeText={this.descriptionChanged.bind(this)}
-                        value={this.props.description}
-                    />
-                </CardSection>
-                <CardSection>
-                    <Input
-                        label="Cuanto gasté?"
-                        placeholder="$$$"
-                        onChangeText={this.amountChanged.bind(this)}
-                        value={this.props.amount}
-                    />
-                </CardSection>
-                <CardSection>
-                    <Picker style={{flex:1}}
-                            selectedValue={this.props.category}
-                            onValueChange={ cat => this.props.categoryChanged(cat)}>
-                        {categoryItems}
-                    </Picker>
-                </CardSection>
-                <Text style={styles.errorTextStyle}>
-                    {this.props.error}
-                </Text>
+        if (this.props.loading) {
+            return <Spinner size="large"/>;
+        }
+        return (<Picker style={{flex:1}}
+                        selectedValue={this.props.category}
+                        onValueChange={ cat => this.props.selectedCategoryChanged(cat)}>
+            {categoryItems}
+        </Picker>)
+    }
 
-                <CardSection>
-                    {this.renderButton()}
-                </CardSection>
-            </Card>
+    renderButton() {
+        if (this.props.loading) {
+            return null
+        }
+
+        return (
+            <CardSection>
+                <Button onPress={this.onButtonPress.bind(this)}>
+                    Guardar
+                </Button>
+            </CardSection>
+
+        );
+    }
+
+    render() {
+        return (
+            <ScrollView style={{backgroundColor:'#EEEEEE'}}>
+                <View >
+                    <Card >
+                        <CardSection>
+                            <Input
+                                label="En qué gasté?"
+                                placeholder="Descripción"
+                                onChangeText={this.descriptionChanged.bind(this)}
+                                value={this.props.description}
+                            />
+                        </CardSection>
+                        <CardSection>
+                            <Input
+                                label="Cuanto gasté?"
+                                placeholder="$$$"
+                                onChangeText={this.amountChanged.bind(this)}
+                                value={this.props.amount}
+                            />
+                        </CardSection>
+                        <CardSection>
+                            {this.renderPicker()}
+                        </CardSection>
+                        <Text style={styles.errorTextStyle}>
+                            {this.props.error}
+                        </Text>
+                        {this.renderButton()}
+                    </Card>
+                </View>
+            </ScrollView>
         );
     }
 }
@@ -115,22 +133,26 @@ const styles = {
 const mapStateToProps = state => {
     const {
         error,
-        loading,
         description,
         category,
         amount
     } = state.expense_addition;
 
+    const {userId} = state.auth;
+
     const categoryList = _.map(state.categories.categoryList, (val, uid) => {
         return {val, uid}
     });
-    return {error, loading, description, category, amount, categoryList};
+    const {loading} = state.categories;
+
+    return {error, loading, description, category, amount, categoryList, userId};
 };
 
 export default connect(mapStateToProps, {
     loadCategories,
     amountChanged,
-    categoryChanged,
+    selectedCategoryChanged,
     descriptionChanged,
+    fetchCredentials,
     saveExpense
 })(AddExpense);

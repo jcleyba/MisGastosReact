@@ -8,7 +8,6 @@ import ListReducer from './list_reducer';
 import ExpensesReducer from './expenses_reducer';
 
 export default combineReducers({
-    userId: '31357915',
     auth: AuthReducer,
     categories: CategoriesReducer,
     expenses: ListReducer,

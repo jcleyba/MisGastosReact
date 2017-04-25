@@ -3,11 +3,12 @@
  */
 import _ from 'lodash';
 import React, {Component} from 'react';
-import {View, Text, TouchableWithoutFeedback}from 'react-native';
-import {ListView} from 'react-native';
+import {View, Text, ListView, TouchableWithoutFeedback, Alert}from 'react-native';
 import {connect} from 'react-redux';
-import {CardSection} from './common'
-import {loadCategories} from '../actions/'
+import {CardSection, Spinner, Card, Input, Button} from './common'
+import {Icon} from 'react-native-elements';
+
+import {loadCategories, deleteCategory, categoryAdd, categoryChanged} from '../actions/'
 
 class Categories extends Component {
 
@@ -20,11 +21,30 @@ class Categories extends Component {
         this.renderDataSource(nextProps)
     }
 
-    renderDataSource({categoryList}) {
+    renderDataSource({categoryListArr}) {
         const ds = new ListView.DataSource({
             rowHasChanged: (r1, r2) => r1 !== r2
         });
-        this.dataSource = ds.cloneWithRows(categoryList);
+        this.dataSource = ds.cloneWithRows(categoryListArr);
+    }
+
+    onCategoryChanged(text) {
+        this.props.categoryChanged(text);
+    }
+
+    onRowPress(category) {
+        const {userId} = this.props;
+        Alert.alert(
+            'Borrar',
+            'Seguro que desea borrar?',
+            [
+                {
+                    text: 'Cancelar', onPress: () => {
+                }
+                },
+                {text: 'Si', onPress: () => this.props.deleteCategory(userId, category.uid)},
+            ]
+        )
     }
 
     renderListRow(category) {
@@ -32,11 +52,12 @@ class Categories extends Component {
             <TouchableWithoutFeedback>
                 <View>
                     <CardSection style={styles.labelsStyle}>
-                        <View>
+                        <View style={styles.containerWithIcon}>
                             <Text style={styles.labelsFont}>
                                 {category.val}
                             </Text>
-
+                            <Icon iconStyle={{paddingLeft:20, alignSelf:'flex-end'}}
+                                  name='delete' color='red' onPress={this.onRowPress.bind(this, category)}></Icon>
                         </View>
                     </CardSection>
                 </View>
@@ -44,11 +65,34 @@ class Categories extends Component {
         )
     }
 
+    saveCategory() {
+        const {userId, category} = this.props;
+        this.props.categoryAdd(userId, category);
+    }
+
     render() {
+        if (this.props.loading)
+            return <Spinner size="large"/>;
         return (
-            <ListView enableEmptySections
-                      dataSource={this.dataSource}
-                      renderRow={this.renderListRow}/>
+            <View>
+                <ListView enableEmptySections
+                          dataSource={this.dataSource}
+                          renderRow={this.renderListRow.bind(this)}/>
+                <Card>
+                    <CardSection>
+                        <Input
+                            label="Categoría"
+                            placeholder="Ingrese el nombre"
+                            onChangeText={this.onCategoryChanged.bind(this)}
+                            value={this.props.category}
+                        />
+                    </CardSection>
+                    <CardSection>
+                        <Button onPress={this.saveCategory.bind(this)}>Guardar</Button>
+                    </CardSection>
+                </Card>
+            </View>
+
         )
     }
 }
@@ -71,15 +115,24 @@ const styles = {
     labelsFont: {
         fontSize: 16,
         fontWeight: 'bold'
+    },
+    containerWithIcon: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between'
     }
 };
 
 const mapStateToProps = state => {
-    const categoryList = _.map(state.categories.categoryList, (val, uid) => {
+    const {categoryList, loading, category} = state.categories;
+    const categoryListArr = _.map(categoryList, (val, uid) => {
         return {val, uid}
     });
 
-    return {categoryList};
+    const {userId} = state.auth;
+
+    return {categoryListArr, userId, loading, category};
 };
 
-export default connect(mapStateToProps, {loadCategories})(Categories);
+export default connect(mapStateToProps, {loadCategories, deleteCategory, categoryAdd, categoryChanged})(Categories);

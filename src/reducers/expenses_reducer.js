@@ -6,6 +6,8 @@ import {
     EXPENSES_DESCRIPTION_CHANGED,
     EXPENSES_CATEGORY_CHANGED,
     EXPENSES_ADD,
+    EXPENSES_DELETE,
+    EXPENSES_DELETE_SUCCESS,
     CATEGORIES_FETCH_SUCCESS,
     EXPENSES_ADD_FAIL,
     EXPENSES_ADD_SUCCESS,
@@ -41,6 +43,10 @@ export default (state = INITIAL_STATE, action) => {
             return {...state, error: 'Intente nuevamente'};
         case EXPENSES_ADD:
             return {...state, error: '', loading: true};
+        case EXPENSES_DELETE:
+            return {...state, error: '', loading: true};
+        case EXPENSES_DELETE_SUCCESS:
+            return {...state, error: '', loading: false};
         case EXPENSES_ADD_SUCCESS:
             return INITIAL_STATE;
         default:

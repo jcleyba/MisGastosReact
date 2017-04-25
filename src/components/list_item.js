@@ -2,13 +2,32 @@
  * Created by juanleyba on 4/24/17.
  */
 import React, {Component} from 'react';
-import {Text, TouchableWithoutFeedback, View} from 'react-native';
+import {
+    Text, TouchableWithoutFeedback, View, Alert,
+    TouchableHighlight,
+} from 'react-native';
+import {Icon} from 'react-native-elements';
+
 import {CardSection} from './common';
 import moment from 'moment';
+import {deletePayment} from '../actions'
+import {connect} from 'react-redux';
 
 class ListItem extends Component {
     onRowPress() {
-
+        console.log(this.props);
+        const {userId, expense} = this.props;
+        Alert.alert(
+            'Borrar',
+            'Seguro que desea borrar?',
+            [
+                {
+                    text: 'Cancelar', onPress: () => {
+                }
+                },
+                {text: 'Si', onPress: () => this.props.deletePayment(userId, expense.uid)},
+            ]
+        )
     }
 
     render() {
@@ -27,10 +46,12 @@ class ListItem extends Component {
                                 {fechaFormatted}
                             </Text>
                         </View>
-                        <View>
+                        <View style={styles.hasButton}>
                             <Text style={styles.titleStyle}>
                                 ${monto}
                             </Text>
+                            <Icon iconStyle={{paddingLeft:20}}
+                                  name='delete' color='red' onPress={this.onRowPress.bind(this)}></Icon>
                         </View>
                     </CardSection>
                 </View>
@@ -55,7 +76,14 @@ const styles = {
     labelsFont: {
         fontSize: 16,
         fontWeight: 'bold'
+    },
+    hasButton: {
+        alignItems: 'center',
+        flexDirection: 'row'
     }
 };
-
-export default ListItem;
+const mapStateToProps = ({auth}) => {
+    const {userId} = auth;
+    return {userId}
+}
+export default connect(mapStateToProps, {deletePayment})(ListItem);

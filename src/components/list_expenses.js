@@ -7,10 +7,11 @@ import {ListView} from 'react-native';
 import {connect} from 'react-redux';
 import {loadPayments} from '../actions/'
 import ListItem from './list_item'
+import {Spinner} from './common'
 
 class ListExpenses extends Component {
     componentWillMount() {
-        this.props.loadPayments('31357915');
+        this.props.loadPayments(this.props.userId);
         this.renderDataSource(this.props);
     }
 
@@ -29,12 +30,19 @@ class ListExpenses extends Component {
         return <ListItem expense={expense}/>
     }
 
-    render() {
+    renderFullList() {
+        if (this.props.loading) {
+            return <Spinner size="large"/>
+        }
         return (
             <ListView enableEmptySections
                       dataSource={this.dataSource}
                       renderRow={this.renderListRow}/>
         )
+    }
+
+    render() {
+        return this.renderFullList();
     }
 }
 
@@ -42,9 +50,11 @@ const mapStateToProps = state => {
     const expensesList = _.map(state.expenses.expensesList, (val, uid) => {
         return {...val, uid}
     });
-
+    const {loading} = state.expenses;
     expensesList.reverse();
-    return {expensesList};
+    const {userId}  = state.auth;
+
+    return {expensesList, loading, userId};
 };
 
 export default connect(mapStateToProps, {loadPayments})(ListExpenses);

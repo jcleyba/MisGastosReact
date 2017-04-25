@@ -1,84 +1,88 @@
-import React, { Component } from 'react';
-import { Text } from 'react-native';
-import { connect } from 'react-redux';
-import { emailChanged, passwordChanged, loginUser } from '../actions';
-import { Card, CardSection, Input, Button, Spinner } from './common';
+import React, {Component} from 'react';
+import {Text} from 'react-native';
+import {connect} from 'react-redux';
+import {Actions} from 'react-native-router-flux';
+import {idChanged, loginUser, fetchCredentials} from '../actions';
+import {Card, CardSection, Input, Button, Spinner} from './common';
 
 class LoginForm extends Component {
-  onEmailChange(text) {
-    this.props.emailChanged(text);
-  }
-
-  onPasswordChange(text) {
-    this.props.passwordChanged(text);
-  }
-
-  onButtonPress() {
-    const { email, password } = this.props;
-
-    this.props.loginUser({ email, password });
-  }
-
-  renderButton() {
-    if (this.props.loading) {
-      return <Spinner size="large" />;
+    componentWillMount() {
+        this.props.fetchCredentials();
     }
 
-    return (
-      <Button onPress={this.onButtonPress.bind(this)}>
-        Login
-      </Button>
-    );
-  }
+    onIdChanged(text) {
+        this.props.idChanged(text);
+    }
 
-  render() {
-    return (
-      <Card>
-        <CardSection>
-          <Input
-            label="Email"
-            placeholder="email@gmail.com"
-            onChangeText={this.onEmailChange.bind(this)}
-            value={this.props.email}
-          />
-        </CardSection>
+    onButtonPress() {
+        const {userId} = this.props;
+        if (!userId || userId.length < 8) {
+            alert('Ingrese bien sus datos')
+        }
+        else {
+            this.props.loginUser({userId});
+        }
+    }
 
-        <CardSection>
-          <Input
-            secureTextEntry
-            label="Password"
-            placeholder="password"
-            onChangeText={this.onPasswordChange.bind(this)}
-            value={this.props.password}
-          />
-        </CardSection>
+    renderButton() {
+        if (this.props.loading) {
+            return <Spinner size="large"/>;
+        }
 
-        <Text style={styles.errorTextStyle}>
-          {this.props.error}
-        </Text>
+        return (
+            <Button onPress={this.onButtonPress.bind(this)}>
+                Login
+            </Button>
+        );
+    }
 
-        <CardSection>
-          {this.renderButton()}
-        </CardSection>
-      </Card>
-    );
-  }
+    renderForm() {
+        if (this.props.loading) {
+            return <Spinner size="large"/>
+        }
+        return (
+            <Card>
+                <CardSection>
+                    <Input
+                        label="DNI"
+                        placeholder="Ingrese su DNI"
+                        onChangeText={this.onIdChanged.bind(this)}
+                        value={this.props.userId}
+                    />
+                </CardSection>
+
+
+                <Text style={styles.errorTextStyle}>
+                    {this.props.error}
+                </Text>
+
+                <CardSection>
+                    {this.renderButton()}
+                </CardSection>
+            </Card>
+        );
+
+    }
+
+    render() {
+        return this.renderForm();
+    }
 }
 
 const styles = {
-  errorTextStyle: {
-    fontSize: 20,
-    alignSelf: 'center',
-    color: 'red'
-  }
+    errorTextStyle: {
+        fontSize: 20,
+        alignSelf: 'center',
+        color: 'red'
+    }
 };
 
-const mapStateToProps = ({ auth }) => {
-  const { email, password, error, loading } = auth;
+const mapStateToProps = ({auth}) => {
+    const {userId, error, loading} = auth;
 
-  return { email, password, error, loading };
+    return {userId, error, loading};
 };
 
 export default connect(mapStateToProps, {
-  emailChanged, passwordChanged, loginUser
+    idChanged, loginUser, fetchCredentials
 })(LoginForm);
