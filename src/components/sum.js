@@ -4,6 +4,7 @@
 import _ from 'lodash';
 import React, {Component} from 'react';
 import {View, Text, ScrollView} from 'react-native';
+import {Spinner} from './common'
 import {connect} from 'react-redux';
 import {loadLastMonthPayments, loadMonthlyPayments} from '../actions';
 
@@ -27,9 +28,19 @@ class SumComponent extends Component {
         var sum = 0;
         array.map(function (item) {
             if (item.tipo === category) {
-                sum += item.monto;
+                sum += Number(item.monto);
+                if (category === 'Almuerzo')
+                    console.log(sum);
             }
         });
+        if (this.props.loading) {
+            return (
+                <View key={category} style={styles.sectionStyles}>
+                    <Text style={styles.categoryTextStyle}>{category}</Text>
+                    <Spinner size="large"/>
+                </View>
+            )
+        }
         return (
             <View key={category} style={styles.sectionStyles}>
                 <Text style={styles.categoryTextStyle}>{category}</Text>
@@ -95,7 +106,7 @@ const styles = {
 };
 
 const mapStateToProps = state => {
-    const {monthExpensesList, lastMonthExpensesList} = state.expenses;
+    const {monthExpensesList, lastMonthExpensesList, loading} = state.expenses;
     const monthExpensesListArray = _.map(monthExpensesList, (val, uid) => {
         return {...val, uid}
     });
@@ -106,7 +117,7 @@ const mapStateToProps = state => {
         return {val, uid}
     });
     const {userId}  = state.auth;
-    return {monthExpensesListArray, lastMonthExpensesListArray, categoryList, userId};
+    return {monthExpensesListArray, lastMonthExpensesListArray, categoryList, userId, loading};
 };
 
 export default connect(mapStateToProps, {loadLastMonthPayments, loadMonthlyPayments})(SumComponent)
