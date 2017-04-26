@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Text} from 'react-native';
+import {Text, StatusBar} from 'react-native';
 import {connect} from 'react-redux';
 import {Actions} from 'react-native-router-flux';
 import {idChanged, loginUser, fetchCredentials} from '../actions';
@@ -8,6 +8,7 @@ import {Card, CardSection, Input, Button, Spinner} from './common';
 class LoginForm extends Component {
     componentWillMount() {
         this.props.fetchCredentials();
+
     }
 
     onIdChanged(text) {
