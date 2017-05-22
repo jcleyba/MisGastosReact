@@ -51,7 +51,7 @@ const RouterComponent = () => {
                        icon={HomeIcon}
                        initial
                 />
-                <Scene key="sum" component={SumComponent} sceneStyle={{ paddingTop: 65 }} title="Totales"
+                <Scene key="sum" component={SumComponent} sceneStyle={{ paddingTop: 65, paddingBottom:49 }} title="Totales"
                        icon={SumIcon}/>
                 <Scene key="list" component={ListExpenses} sceneStyle={{ paddingTop: 65 }} title="Pagos"
                        icon={ListIcon}/>

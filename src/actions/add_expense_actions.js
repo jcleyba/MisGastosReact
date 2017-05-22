@@ -40,7 +40,7 @@ export const saveExpense = ({category, amount, description}) => {
         dispatch({type: EXPENSES_ADD});
         firebase.database().ref('31357915' + '/compras').push({
             descripcion: description,
-            monto: amount,
+            monto: Number(amount),
             fecha: new Date().getTime(),
             tipo: category
         }).then(data => {
