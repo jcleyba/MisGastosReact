@@ -35,10 +35,10 @@ export const selectedCategoryChanged = (text) => {
     };
 };
 
-export const saveExpense = ({category, amount, description}) => {
+export const saveExpense = ({userId, category, amount, description}) => {
     return (dispatch) => {
         dispatch({type: EXPENSES_ADD});
-        firebase.database().ref('31357915' + '/compras').push({
+        firebase.database().ref(userId + '/compras').push({
             descripcion: description,
             monto: Number(amount),
             fecha: new Date().getTime(),

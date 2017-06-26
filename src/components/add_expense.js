@@ -33,7 +33,7 @@ class AddExpense extends Component {
     }
 
     onButtonPress() {
-        const {description, category, amount} = this.props;
+        const {userId, description, category, amount} = this.props;
         if (!this.validateField(description) || !this.validateField(category) || !this.validateField(amount)) {
             alert('Todos los campos son necesarios!')
         }
@@ -41,7 +41,7 @@ class AddExpense extends Component {
             alert('Revise cada campo!')
         }
         else {
-            this.props.saveExpense({category, amount, description});
+            this.props.saveExpense({userId, category, amount, description});
         }
 
     }

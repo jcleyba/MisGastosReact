@@ -13,7 +13,7 @@ import {loadCategories, deleteCategory, categoryAdd, categoryChanged} from '../a
 class Categories extends Component {
 
     componentWillMount() {
-        this.props.loadCategories('31357915');
+        this.props.loadCategories(this.props.userId);
         this.renderDataSource(this.props);
     }
 
